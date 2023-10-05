@@ -6,8 +6,6 @@ function App() {
   const [weatherInfo, setWeatherInfo] = useState(null);
   const [showLocationAlert, setShowLocationAlert] = useState(false);
   const [selectedDay, setSelectedDay] = useState(null);
-  // const [weatherAlerts, setWeatherAlerts] = useState(null);
-  const [forecastData, setForecastData] = useState(null);
 
   const formatTime = (time) => {
     const hour = parseInt(time.split(' ')[1].split(':')[0]);
@@ -26,18 +24,14 @@ function App() {
       setShowLocationAlert(false);
 
       const apiKey = '4509b54495474fc29b9160316232809';
-      const apiUrl = `http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${location}&days=3&alert=yes`;
+      const apiUrl = `http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${location}&days=3&alerts=yes`;
       const response = await fetch(apiUrl);
       const data = await response.json();
 
       if (data.error) {
         alert('Location not found. Please try again.');
       } else {
-        console.log('Weather data:', data);
         setWeatherInfo(data);
-        // setWeatherAlerts(data.alert); // Set the notifications. 
-        console.log(data.forecast);
-        setForecastData(data.forecast.forecastday); // Set the forecast data for alerts.
       }
     } catch (error) {
       console.error('Error fetching weather data:', error);
@@ -66,11 +60,20 @@ function App() {
 
       {showLocationAlert && <p>Please enter a location.</p>}
 
-
       {weatherInfo && (
         <div id="weatherInfo">
           <h2>Weather - {weatherInfo.location.name}, {weatherInfo.location.region}, {weatherInfo.location.country}</h2>
           <p>As of {new Date(weatherInfo.current.last_updated_epoch * 1000).toLocaleString('en-US', { timeZone: 'America/New_York' })} EDT</p>
+
+          <h3>Alerts:</h3>
+          {weatherInfo.alerts && (
+            <div className="alert">
+              <p>{weatherInfo.alerts.alert[0].headline}</p>
+              <p>Severity: {weatherInfo.alerts.alert[0].severity}</p>
+              <p>Areas: {weatherInfo.alerts.alert[0].areas}</p>
+              <p>Instruction: {weatherInfo.alerts.alert[0].instruction}</p>
+            </div>
+          )}
 
           <div className="currentWeather">
             <h3>Current Weather</h3>
@@ -111,22 +114,7 @@ function App() {
 
         </div>
       )}
-
-{/* {weatherAlerts && (
-        <div id="weatherAlerts">
-          <h2>Weather notifications</h2>
-          {weatherAlerts.map((alert, index) => (
-            <div key={index} className="alert">
-              console.log(alert);
-              <p>{alert.event}</p>
-              <p>{alert.description}</p>
-              <p>Severity: {alert.severity}</p>
-              {/* Add more alert details as needed */}
-            </div>
-          // ))}
-        // </div>
-      // )} */}
-    // </div>
+    </div>
   );
 }
 
